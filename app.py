@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify, url_for, send_from_directory
 import yt_dlp
 import os
 
@@ -44,7 +44,7 @@ def download_video_as_mp3(url):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory(directory='.', path='index.html')
 
 @app.route('/download', methods=['POST'])
 def download():
