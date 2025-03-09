@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpyderConverter Web Console</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #FFF;
+            font-family: monospace;
+        }
+        #console {
+            background-color: #000;
+            color: #FFF;
+            height: 80vh;
+            overflow-y: scroll;
+            padding: 10px;
+            border: 1px solid #444;
+        }
+        input {
+            background-color: #000;
+            color: #FFF;
+            border: 1px solid #444;
+        }
+        a {
+            color: #FF6347;
+        }
+        .ellipsis::after {
+            content: " ";
+            animation: ellipsis 1.5s infinite;
+        }
+        @keyframes ellipsis {
+            0% { content: " "; }
+            33% { content: ". "; }
+            66% { content: ".. "; }
+            100% { content: "..."; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SpyderConverter Web Console</h1>
+        <div id="console">
+            <p>Welcome to SpyderConverter!</p>
+            <p>This web console was developed by @semodge.</p>
+            <p>I developed this website because I was tired of all the other non-open source ones.</p>
+            <p>They always have a weird amount of ads and they purposefully make it so that you have to wait longer for your file, just so they can make more money off you.</p>
+            <p>To use SpyderConverter, please paste your YouTube link into the bar below.</p>
+            <p><strong>Note:</strong> We currently only support direct videos and not shorts!</p>
+            <br>
+        </div>
+        <input type="text" id="command-input" class="form-control" placeholder="Enter YouTube URL">
+    </div>
+
+    <script>
+        document.getElementById('command-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const url = event.target.value;
+                const consoleElement = document.getElementById('console');
+                consoleElement.innerHTML += `<br>$ ${url}<br>Download started on [Fetching title...] please wait<span class="ellipsis"></span>`;
+                fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const title = data.title ? data.title : 'unknown title';
+                    const output = data.output.replace(/\n/g, '<br>');
+                    consoleElement.innerHTML = consoleElement.innerHTML.replace('[Fetching title...]', title);
+                    consoleElement.innerHTML += `<br>${output}`;
+                    if (data.download_link) {
+                        consoleElement.innerHTML += `<br><a href="${data.download_link}" class="btn btn-success" download>Download MP3</a>`;
+                    }
+                    consoleElement.scrollTop = consoleElement.scrollHeight;
+                });
+                event.target.value = '';
+            }
+        });
+
+        const consoleElement = document.getElementById('console');
+        consoleElement.scrollTop = consoleElement.scrollHeight;
+    </script>
+</body>
+</html>
