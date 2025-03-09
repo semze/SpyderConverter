@@ -1,6 +1,8 @@
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, url_for, send_from_directory
 import yt_dlp
 import os
+import webbrowser
+import threading
 
 app = Flask(__name__)
 
@@ -44,7 +46,7 @@ def download_video_as_mp3(url):
 
 @app.route('/')
 def index():
-    return send_from_directory(directory='.', path='index.html')
+    return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -58,5 +60,9 @@ def download():
 def download_file(filename):
     return send_from_directory('downloads', filename, as_attachment=True)
 
+def open_browser():
+    webbrowser.open_new('http://127.0.0.1:5000/')
+
 if __name__ == "__main__":
+    threading.Timer(1.25, open_browser).start()
     app.run(debug=True)
